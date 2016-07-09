@@ -40,9 +40,6 @@
   get_url:
        url={{ amq_url }}
        dest=/tmp/
-       url_username={{ charter_nexus_user }}
-       url_password={{ charter_nexus_pass }}
-       use_proxy=no
        owner={{ amq_user }}
        group={{ amq_group }}
   when: amq_skip_checksum
