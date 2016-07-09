@@ -1,0 +1,4 @@
+---
+
+- name: install latest activemq from apt-get
+  apt: name=activemq state=present update_cache=yes

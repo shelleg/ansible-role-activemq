@@ -1,0 +1,11 @@
+---
+# handlers file for activemq-ansible-role
+#
+- name: start activemq
+  service: name=activemq state=started
+
+- name: stop activemq
+  service: name=activemq state=stopped
+
+- name: restart activemq
+  service: name=activemq state=restarted
