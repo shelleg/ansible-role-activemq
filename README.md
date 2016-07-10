@@ -1,7 +1,12 @@
-ActiveMQ Ansible Role 
+ActiveMQ Ansible Role  
 =====================
 
-Installs ActiveMQ
+Installs ActiveMQ 
+
+Build Status:
+-------------
+Curentelly only supports Ansible lint, need to add distrobutions (work started in `.travis.yml`)
+[![Build Status](https://travis-ci.org/shelleg/ansible-role-activemq.svg?branch=master)](https://travis-ci.org/shelleg/ansible-role-activemq)
 
 Requirements
 ------------
