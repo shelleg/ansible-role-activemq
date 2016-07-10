@@ -1,38 +1,68 @@
-Role Name
-=========
+ActiveMQ Ansible Role 
+=====================
 
-A brief description of the role goes here.
+Installs ActiveMQ
 
 Requirements
 ------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+JAVA Oracle
 
 Role Variables
 --------------
+Default installation mode for Rhel/Centos
+amq_install_mode: tarball
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+User & Group activemq runs under:
+amq_user:   activemq
+amq_group:  activemq
+amq_home_dir:  /var/lib/activemq
+amq_log_dir: /var/log/activemq
+
+Installation directory:
+amq_install_dir: /opt
+amq_run_dir: "/opt/{{ amq_user }}"
+
+Default version:
+amq_version_major: "5"
+amq_version_minor: "13"
+amq_version_patch: "3"
+amq_version: "{{ amq_version_major }}.{{ amq_version_minor }}.{{
+amq_version_patch }}"
+
+Download url - this can be overwritten with your corporate url prefix:
+amq_url_prefix: "http://archive.apache.org/dist/activemq/"
+amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{
+amq_version }}-bin.tar.gz"
+
 
 Dependencies
 ------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Requires Java in order to run.
+Personally I do not believe in depedencies from meta/main.yml
+considering this looks too much like black magic ...
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+``` shell
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - java
+    - ansible-role-activemq
+```
 
 License
 -------
 
-BSD
+GPLv3
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Haggai Philip Zagury <hagzag@tikalk.com> part of
+[Shellg](https://github.com/shelleg/shelleg) project.
+see also [Shellg Docs](http://shelleg.github.io/shellegDoc/)
