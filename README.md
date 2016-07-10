@@ -5,7 +5,8 @@ Installs ActiveMQ
 
 Build Status:
 -------------
-Curentelly only supports Ansible lint, need to add distrobutions (work started in `.travis.yml`)
+Currently only supports Ansible lint, need to add distributions (work started in `.travis.yml`)
+
 [![Build Status](https://travis-ci.org/shelleg/ansible-role-activemq.svg?branch=master)](https://travis-ci.org/shelleg/ansible-role-activemq)
 
 Requirements
