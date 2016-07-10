@@ -28,7 +28,7 @@ install:
   - mkdir ./galaxy-roles
 
   # get requirements:
-  - ansible-galaxy install requirements.yml
+  - ansible-galaxy install -r requirements.yml
 
 script:
   # Basic role syntax check
