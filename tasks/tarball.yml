@@ -31,7 +31,7 @@
 #     - getbin
 
 # - name: "Get tarball [ Validating md5 Checksum ]"
-#   get_url: url={{ amq_url }} dest=/tmp/activemq-{{ amq_version }}-bin.tar.gz checksum={{ amq_checksum }}
+#   get_url: url={{ amq_url }} dest=/tmp/apache-activemq-{{ amq_version }}-bin.tar.gz checksum={{ amq_checksum }}
 #   when: amq_skip_checksum == false and amq_checksum is defined
 #   tags: 
 #     - getbin
@@ -39,7 +39,7 @@
 - name: "Get tarball"
   get_url:
        url={{ amq_url }}
-       dest=/tmp/
+       dest=/tmp/apache-activemq-{{ amq_version }}-bin.tar.gz
        owner={{ amq_user }}
        group={{ amq_group }}
   when: amq_skip_checksum
