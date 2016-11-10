@@ -1,33 +1,42 @@
---- 
-
-
-- debug: var=amq_version
-
+---
 - name: "Add Activemq group"
-  group: name={{ amq_group }}
+  group:
+    name: "{{ amq_group }}"
   tags:
     - init
     - group
 
 - name: "Add Activemq user"
-  user: name={{ amq_user }} group={{ amq_group }} home={{ amq_home_dir }} comment="ActiveMQ service account" createhome=no state=present system=yes
+  user:
+    name: "{{ amq_user }}"
+    group: "{{ amq_group }}"
+    home: "{{ amq_home_dir }}"
+    comment: "ActiveMQ service account"
+    createhome: no
+    state: present
+    system: yes
   tags:
     - init
     - user
 
 - name: "Create requires directories [home/log etc etc]"
-  file: path="{{ item }}" state=directory mode=0755 owner="{{ amq_user }}" group="{{ amq_group }}"
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ amq_user }}"
+    group: "{{ amq_group }}"
   with_items:
   - "{{ amq_home_dir }}"
   - "{{ amq_log_dir }}"
 
 #- block:
 # - name: "set amq_checksum fact"
-#   set_fact: 
+#   set_fact:
 #    amq_checksum:  "{{ item.checksum }}"
 #   when: item.version == amq_version
 #   with_items: "{{ amq_checksums }}"
-#   tags: 
+#   tags:
 #     - getbin
 
 # - name: "Get tarball [ Validating md5 Checksum ]"
@@ -38,10 +47,10 @@
 
 - name: "Get tarball"
   get_url:
-       url={{ amq_url }}
-       dest=/tmp/apache-activemq-{{ amq_version }}-bin.tar.gz
-       owner={{ amq_user }}
-       group={{ amq_group }}
+    url: "{{ amq_url }}"
+    dest: "/tmp/apache-activemq-{{ amq_version }}-bin.tar.gz"
+    owner: "{{ amq_user }}"
+    group: "{{ amq_group }}"
   when: amq_skip_checksum
   #and amq_checksum is not defined
   tags:
@@ -58,8 +67,8 @@
 #       group={{ amq_group }}
   command: tar zxvf /tmp/apache-activemq-{{ amq_version }}-bin.tar.gz --directory /opt/
 
-- name: "become didn't work ... so chown it is ..."
-  command: chown "{{ amq_user }}"."{{ amq_user }}" /opt/apache-activemq-{{ amq_version }} -R
+- name: "Become didn't work ... so chown it is ..."
+  command: chown "{{ amq_user }}"."{{ amq_user }}" /opt/apache-activemq-"{{ amq_version }}" -R
   tags:
     - chown
 
@@ -68,43 +77,52 @@
   file: src="{{ amq_install_dir }}/apache-activemq-{{ amq_version }}"
         dest="{{ amq_install_dir }}/activemq"
         state=link
-        owner={{ amq_user }}
-        group={{ amq_group }}
+        owner="{{ amq_user }}"
+        group="{{ amq_group }}"
         #force=true
   tags:
     - link
 
 - name: "Create init sctipt link file"
-  file: src="{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq" dest="/etc/init.d/activemq" owner=root group=root state=link
+  file:
+    src: "{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq"
+    dest: "/etc/init.d/activemq"
+    owner: root
+    group: root
+    state: link
+  when: amq_systemd is not defined
+
+- name: "Create init sctipt link file"
+  file:
+    src: "{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq"
+    dest: "/etc/init.d/activemq"
+    owner: root
+    group: root
+    state: link
+  when: amq_systemd
 
 - name: "Generate empty log file ..."
-  file: path="{{ amq_log_dir }}"  state=touch mode="u=rw,g=r,o=r" owner=root group=root
-
-#- name: "Generate sysconfig"
-#  copy: src=init.d  dest=/etc/init.d/activemq  mode=0755 owner=root group=root
-#- name: "Set service"
-
-#- name: "Generate service file Redhat"
-#  template:
-#    src=
-#    dest=
-#    owner=
-#    group=
-#    mode=0644  
-#  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version|int >= 6
-
-#- name: "Generate service file Ubuntu"
-#  debug: msg="Not implemented yet"
-#  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version >= '14.04'
+  file:
+    path: "{{ amq_log_dir }}"
+    state: touch
+    mode: "u=rw,g=r,o=r"
+    owner: root
+    group: root
 
 - name: "Generate /etc/sysconfig/activemq Redhat"
   template:
-    src=sysconfig_activemq.j2
-    dest=/etc/sysconfig/activemq
-    owner=root
-    group=root
-    mode=0755  
-#  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version|int >= 6
+    src: sysconfig_activemq.j2
+    dest: /etc/sysconfig/activemq
+    owner: root
+    group: root
+    mode: 0755
 
-- service: name=activemq enabled=yes
-- service: name=activemq state=started
+- name: "Generate systemd service file"
+  template:
+    src: activemq.service.j2
+    dest: /etc/systemd/system/activemq.service
+    owner: root
+    group: root
+  when: amq_systemd is defined
+
+- service: name=activemq enabled=yes state=started

@@ -10,7 +10,7 @@ amq_log_dir: /var/log/activemq
 # default installation mode
 amq_install_mode: tarball
 amq_skip_checksum: true
-
+amq_systemd: true
 # example url :: http://archive.apache.org/dist/activemq/5.10.0/apache-activemq-5.10.0-bin.tar.gz
 amq_url_prefix: "http://archive.apache.org/dist/activemq/"
 
