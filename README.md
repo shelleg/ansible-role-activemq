@@ -17,30 +17,29 @@ JAVA Oracle
 
 Role Variables
 --------------
-Default installation mode for Rhel/Centos
-amq_install_mode: tarball
+Default installation mode for Rhel/Centos:
+
+* `amq_install_mode: tarball`
 
 User & Group activemq runs under:
-amq_user:   activemq
-amq_group:  activemq
-amq_home_dir:  /var/lib/activemq
-amq_log_dir: /var/log/activemq
+* `amq_user:   activemq`
+* `amq_group:  activemq`
+* `amq_home_dir:  /var/lib/activemq`
+* `amq_log_dir: /var/log/activemq`
 
 Installation directory:
-amq_install_dir: /opt
-amq_run_dir: "/opt/{{ amq_user }}"
+* `amq_install_dir: /opt`
+* `amq_run_dir: "/opt/{{ amq_user }}"`
 
 Default version:
-amq_version_major: "5"
-amq_version_minor: "13"
-amq_version_patch: "3"
-amq_version: "{{ amq_version_major }}.{{ amq_version_minor }}.{{
-amq_version_patch }}"
+* `amq_version_major: "5"`
+* `amq_version_minor: "13"`
+* `amq_version_patch: "3"`
+* `amq_version: "{{ amq_version_major }}.{{ amq_version_minor }}.{{amq_version_patch }}"`
 
 Download url - this can be overwritten with your corporate url prefix:
-amq_url_prefix: "http://archive.apache.org/dist/activemq/"
-amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{
-amq_version }}-bin.tar.gz"
+* `amq_url_prefix: "http://archive.apache.org/dist/activemq/"`
+* `amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{amq_version }}-bin.tar.gz"`
 
 
 Dependencies
@@ -63,10 +62,17 @@ Including an example of how to use your role (for instance, with variables passe
     - ansible-role-activemq
 ```
 
+Changelog:
+----------
+
+* initial release - initial release support ubutnu 14/16.04 && centos 6/7
+* [v1.0.0](https://github.com/shelleg/ansible-role-activemq/releases)          - Add support for systemd in centos7 
+* [v1.0.1](https://github.com/shelleg/ansible-role-activemq/releases)          - Add support for centos6 (no systemd)
+
 License
 -------
 
-GPLv3
+[Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 Author Information
 ------------------
