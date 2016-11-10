@@ -1,4 +1,17 @@
 ---
+
+- name: "determin if to use systemd or not (for centos 6 support)"
+  stat:
+    path: /etc/systemd
+  register: systemd
+
+- debug: var=systemd.stat
+
+- name: "set fact if systemd is avail"
+  set_fact:
+    amq_systemd: true
+  when: systemd.stat.exists
+
 - name: "Add Activemq group"
   group:
     name: "{{ amq_group }}"
@@ -99,7 +112,7 @@
     owner: root
     group: root
     state: link
-  when: amq_systemd
+  when: amq_systemd is not defined
 
 - name: "Generate empty log file ..."
   file:
