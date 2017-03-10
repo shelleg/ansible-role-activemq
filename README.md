@@ -41,6 +41,12 @@ Download url - this can be overwritten with your corporate url prefix:
 * `amq_url_prefix: "http://archive.apache.org/dist/activemq/"`
 * `amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{amq_version }}-bin.tar.gz"`
 
+Environment vars : you can override or add new environment variables. These variables are used loaded by systemd service file
+```
+amq_env_vars:
+  ACTIVEMQ_USER: "{{ amq_user }}"
+  ACTIVEMQ_BASE: "{{ amq_run_dir }}"
+```
 
 Dependencies
 ------------
