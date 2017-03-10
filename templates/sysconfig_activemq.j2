@@ -1,11 +1,3 @@
-# Sample sysconfig file
-
-ACTIVEMQ_USER="{{ amq_user }}" 		# activemq
-RUN_AS_USER="${ACTIVEMQ_USER}"
-ACTIVEMQ_BASE="{{ amq_run_dir }}" 	#/opt/activemq
-ACTIVEMQ_LOG="{{ amq_log_dir }}/activemq.log"
-#ACTIVEMQ_LOG=/dev/null
-ACTIVEMQ_START="ACTIVEMQ_OPTS=\"-Xmx8g -Dorg.apache.activemq.UseDedicatedTaskRunner=false\" ${ACTIVEMQ_START}"
-
-export ACTIVEMQ_USER ACTIVEMQ_BASE ACTIVEMQ_START ACTIVEMQ_STOP ACTIVEMQ_LOG ACTIVEMQ_OPTS 
-#JAVA_HOME
+{% for key in amq_env_vars %}
+{{ key }}="{{ amq_env_vars[key] }}"
+{% endfor %}

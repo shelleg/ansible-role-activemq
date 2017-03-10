@@ -26,4 +26,7 @@ amq_checksums:
 
 amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{ amq_version }}-bin.tar.gz"
 
+amq_env_vars:
+  ACTIVEMQ_USER: "{{ amq_user }}"
+  ACTIVEMQ_BASE: "{{ amq_run_dir }}"
 
