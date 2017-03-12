@@ -5,6 +5,9 @@ After=network-online.target
 [Service]
 Type=forking
 WorkingDirectory={{ amq_run_dir }}/bin
+{% if amq_env_vars is defined %}
+EnvironmentFile=/etc/sysconfig/activemq
+{% endif %}
 ExecStart={{ amq_run_dir }}/bin/activemq start
 ExecStop={{ amq_run_dir }}/bin/activemq stop
 Restart=on-abort
