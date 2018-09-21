@@ -96,6 +96,16 @@
   tags:
     - link
 
+- name: Copy custom activemq.xml config file
+  template:
+    src: '{{ activemq_custom_xml_config_path }}'
+    dest: '{{ activemq_conf_dir }}/activemq.xml'
+    owner: '{{ amq_user }}'
+    group: "{{ amq_group }}"
+    mode: 0644
+  when:
+    - activemq_custom_xml_config == True
+
 - name: "Create init sctipt link file"
   file:
     src: "{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq"

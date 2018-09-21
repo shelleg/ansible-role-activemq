@@ -1,0 +1,108 @@
+<!-- {{ ansible_managed }} -->
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.conf}/credentials.properties</value>
+        </property>
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="{{ activemq_instance_name }}" dataDirectory="${activemq.data}">
+        <plugins>
+            <simpleAuthenticationPlugin>
+              <users>
+                <authenticationUser username="{{ activemq_admin_user }}" password="{{ activemq_admin_password }}" groups="admins"/>
+
+            {% if activemq_authentication %}
+              {% for item in activemq_authentication %}
+                <authenticationUser username="{{ item.username }}" password="{{ item.password }}" groups="{{ item.groups }}"/>
+              {% endfor %}
+            {% endif %}
+
+              </users>
+            </simpleAuthenticationPlugin>
+            <authorizationPlugin>
+              <map>
+                <authorizationMap>
+                  <authorizationEntries>
+                    <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
+                    <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
+                {% if activemq_authorization_queue is defined %}
+                  {% for item in activemq_authorization_queue %}
+                      <authorizationEntry queue="{{ item.queue }}" write="{{ item.write }}" read="{{ item.read }}" admin="{{ item.admin }}" />
+                  {% endfor %}
+                {% endif %}
+                {% if activemq_authorization_topic is defined %}
+                  {% for item in activemq_authorization_topic %}
+                      <authorizationEntry topic="{{ item.topic }}" write="{{ item.write }}" read="{{ item.read }}" admin="{{ item.admin }}" />
+                  {% endfor %}
+                {% endif %}
+                  </authorizationEntries>
+                </authorizationMap>
+              </map>
+            </authorizationPlugin>
+        </plugins>
+        <destinationPolicy>
+            <policyMap>
+              <policyEntries>
+                <policyEntry topic=">" producerFlowControl="true">
+                  <pendingMessageLimitStrategy>
+                    <constantPendingMessageLimitStrategy limit="1000"/>
+                  </pendingMessageLimitStrategy>
+                </policyEntry>
+
+                <policyEntry queue=">" producerFlowControl="false" cursorMemoryHighWaterMark="30">
+                </policyEntry>
+
+                <!-- Dead-messages queue prefix -->
+                <policyEntry queue=">" producerFlowControl="false">
+                  <deadLetterStrategy>
+                    <individualDeadLetterStrategy queuePrefix="dlq." useQueueForQueueMessages="true" />
+                  </deadLetterStrategy>
+                </policyEntry>
+
+              </policyEntries>
+            </policyMap>
+        </destinationPolicy>
+
+        <managementContext>
+            <managementContext createConnector="false"/>
+        </managementContext>
+
+        <persistenceAdapter>
+            <kahaDB directory="${activemq.data}/kahadb"/>
+        </persistenceAdapter>
+
+          <systemUsage>
+            <systemUsage sendFailIfNoSpace="true">
+                <memoryUsage>
+                    <memoryUsage limit="128 mb"/>
+                </memoryUsage>
+                <storeUsage>
+                    <storeUsage limit="100 gb"/>
+                </storeUsage>
+                <tempUsage>
+                    <tempUsage limit="50 gb"/>
+                </tempUsage>
+            </systemUsage>
+        </systemUsage>
+
+        <transportConnectors>
+            <transportConnector name="openwire" uri="{{ activemq_openwire_transport_connector_uri }}"/>
+            <transportConnector name="amqp" uri="{{ activemq_amqp_transport_connector_uri }}"/>
+            <transportConnector name="stomp" uri="{{ activemq_stomp_transport_connector_uri }}"/>
+            <transportConnector name="stomp+nio" uri="{{ activemq_stomp_and_nio_transport_connector_uri }}"/>
+        </transportConnectors>
+
+        <shutdownHooks>
+            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+        </shutdownHooks>
+
+    </broker>
+    <import resource="jetty.xml"/>
+</beans>

@@ -3,6 +3,7 @@
 amq_user: activemq
 amq_group:  activemq
 amq_install_dir: /opt
+activemq_conf_dir: '{{ activemq_install_dir }}/activemq/conf'
 amq_run_dir: "/opt/{{ amq_user }}"
 amq_home_dir:  /var/lib/activemq
 amq_log_dir: /var/log/activemq
@@ -30,3 +31,12 @@ amq_env_vars:
   ACTIVEMQ_USER: "{{ amq_user }}"
   ACTIVEMQ_BASE: "{{ amq_run_dir }}"
 
+# Use custom broker xml config
+activemq_custom_xml_config: True
+activemq_custom_xml_config_path: 'activemq.xml.j2'
+
+# activemq broker config
+activemq_openwire_transport_connector_uri: 'tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600'
+activemq_amqp_transport_connector_uri: 'amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600'
+activemq_stomp_transport_connector_uri: 'stomp://0.0.0.0:61713?transport.closeAsync=false'
+activemq_stomp_and_nio_transport_connector_uri: 'stomp+nio://0.0.0.0:61712?transport.closeAsync=false'
