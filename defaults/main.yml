@@ -3,10 +3,10 @@
 amq_user: activemq
 amq_group:  activemq
 amq_install_dir: /opt
-activemq_conf_dir: '{{ activemq_install_dir }}/activemq/conf'
-amq_run_dir: "/opt/{{ amq_user }}"
-amq_home_dir:  /var/lib/activemq
-amq_log_dir: /var/log/activemq
+amq_conf_dir: "{{ amq_install_dir }}/activemq/conf"
+amq_run_dir: "{{ amq_install_dir }}/{{ amq_user }}"
+amq_home_dir:  /var/lib/{{ amq_user }}
+amq_log_dir: /var/log/{{ amq_user }}
 
 # default installation mode
 amq_install_mode: tarball
@@ -16,8 +16,8 @@ amq_url_prefix: "http://archive.apache.org/dist/activemq/"
 
 # calculate version
 amq_version_major: "5"
-amq_version_minor: "13"
-amq_version_patch: "3"
+amq_version_minor: "15"
+amq_version_patch: "8"
 
 amq_version: "{{ amq_version_major }}.{{ amq_version_minor }}.{{ amq_version_patch }}"
 
@@ -32,11 +32,28 @@ amq_env_vars:
   ACTIVEMQ_BASE: "{{ amq_run_dir }}"
 
 # Use custom broker xml config
-activemq_custom_xml_config: True
-activemq_custom_xml_config_path: 'activemq.xml.j2'
+amq_custom_xml_config: True
+amq_custom_xml_config_path: "activemq.xml.j2"
+# Use custom log4j.properties
+amq_custom_log4j_config: True
+amq_custom_log4j_config_path: "log4j.properties.j2"
 
 # activemq broker config
-activemq_openwire_transport_connector_uri: 'tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600'
-activemq_amqp_transport_connector_uri: 'amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600'
-activemq_stomp_transport_connector_uri: 'stomp://0.0.0.0:61713?transport.closeAsync=false'
-activemq_stomp_and_nio_transport_connector_uri: 'stomp+nio://0.0.0.0:61712?transport.closeAsync=false'
+amq_broker_name: "{{ ansible_hostname }}"
+amq_admin_user: admin
+amq_admin_password: "{{ amq_admin_user }}"
+amq_authentication: false
+
+
+  
+amq_openwire_transport_connector_uri: "tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"
+amq_amqp_transport_connector_uri: "amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"
+amq_stomp_transport_connector_uri: "stomp://0.0.0.0:61713?transport.closeAsync=false"
+amq_stomp_and_nio_transport_connector_uri: "stomp+nio://0.0.0.0:61712?transport.closeAsync=false"
+
+amq_transport_connectors:
+   openwire: "{{ amq_openwire_transport_connector_uri }}"
+   amqp : "{{ amq_amqp_transport_connector_uri }}"
+   stomp : "{{ amq_stomp_transport_connector_uri }}"
+   "stomp+nio" : "{{ amq_stomp_and_nio_transport_connector_uri }}"
+

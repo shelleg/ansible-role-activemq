@@ -12,14 +12,14 @@
         </property>
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="{{ activemq_instance_name }}" dataDirectory="${activemq.data}">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="{{ amq_broker_name }}" dataDirectory="${activemq.data}">
         <plugins>
             <simpleAuthenticationPlugin>
               <users>
-                <authenticationUser username="{{ activemq_admin_user }}" password="{{ activemq_admin_password }}" groups="admins"/>
+                <authenticationUser username="{{ amq_admin_user }}" password="{{ amq_admin_password }}" groups="admins"/>
 
-            {% if activemq_authentication %}
-              {% for item in activemq_authentication %}
+            {% if amq_authentication %}
+              {% for item in amq_authentication %}
                 <authenticationUser username="{{ item.username }}" password="{{ item.password }}" groups="{{ item.groups }}"/>
               {% endfor %}
             {% endif %}
@@ -32,13 +32,13 @@
                   <authorizationEntries>
                     <authorizationEntry queue=">" write="admins" read="admins" admin="admins" />
                     <authorizationEntry topic=">" write="admins" read="admins" admin="admins" />
-                {% if activemq_authorization_queue is defined %}
-                  {% for item in activemq_authorization_queue %}
+                {% if amq_authorization_queue is defined %}
+                  {% for item in amq_authorization_queue %}
                       <authorizationEntry queue="{{ item.queue }}" write="{{ item.write }}" read="{{ item.read }}" admin="{{ item.admin }}" />
                   {% endfor %}
                 {% endif %}
-                {% if activemq_authorization_topic is defined %}
-                  {% for item in activemq_authorization_topic %}
+                {% if amq_authorization_topic is defined %}
+                  {% for item in amq_authorization_topic %}
                       <authorizationEntry topic="{{ item.topic }}" write="{{ item.write }}" read="{{ item.read }}" admin="{{ item.admin }}" />
                   {% endfor %}
                 {% endif %}
@@ -93,10 +93,9 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" uri="{{ activemq_openwire_transport_connector_uri }}"/>
-            <transportConnector name="amqp" uri="{{ activemq_amqp_transport_connector_uri }}"/>
-            <transportConnector name="stomp" uri="{{ activemq_stomp_transport_connector_uri }}"/>
-            <transportConnector name="stomp+nio" uri="{{ activemq_stomp_and_nio_transport_connector_uri }}"/>
+            {% for key in amq_transport_connectors %}
+            <transportConnector name="{{ key }}" uri="{{ amq_transport_connectors[key] }}"/>
+            {% endfor %}
         </transportConnectors>
 
         <shutdownHooks>
