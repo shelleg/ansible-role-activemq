@@ -1,25 +1,25 @@
 ---
 
-- name: "determin if to use systemd or not (for centos 6 support)"
+- name: "determine if to use systemd or not (for centos 6 support)"
   stat:
     path: /etc/systemd
   register: systemd
 
 - debug: var=systemd.stat
 
-- name: "set fact if systemd is avail"
+- name: "set fact if systemd is available"
   set_fact:
     amq_systemd: true
   when: systemd.stat.exists
 
-- name: "Add Activemq group"
+- name: "Add ActiveMQ group"
   group:
     name: "{{ amq_group }}"
   tags:
     - init
     - group
 
-- name: "Add Activemq user"
+- name: "Add ActiveMQ user"
   user:
     name: "{{ amq_user }}"
     group: "{{ amq_group }}"
@@ -57,33 +57,14 @@
 #   when: amq_skip_checksum == false and amq_checksum is defined
 #   tags: 
 #     - getbin
-
-- name: "Get tarball"
-  get_url:
-    url: "{{ amq_url }}"
-    dest: "/tmp/apache-activemq-{{ amq_version }}-bin.tar.gz"
+- name: "download and unpackage Apache ActiveMQ {{ amq_version }}"
+  unarchive:
+    src: "{{ amq_url }}"
+    remote_src: yes
+    dest: "{{ amq_install_dir }}"
     owner: "{{ amq_user }}"
     group: "{{ amq_group }}"
-  when: amq_skip_checksum
-  #and amq_checksum is not defined
-  tags:
-    - getbin
-
-- name: "Extract tarball" # see: https://github.com/ansible/ansible/issues/16078
-# bug in snsible >= 2.1.0.0
-#  unarchive:
-#       src=/tmp/apache-activemq-{{ amq_version }}-bin.bz2
-#       dest="{{ amq_install_dir}}"
-#       list_files=true
-#       copy=no
-#       owner={{ amq_user }}
-#       group={{ amq_group }}
-  command: tar zxvf /tmp/apache-activemq-{{ amq_version }}-bin.tar.gz --directory /opt/
-
-- name: "Become didn't work ... so chown it is ..."
-  command: chown "{{ amq_user }}"."{{ amq_user }}" /opt/apache-activemq-"{{ amq_version }}" -R
-  tags:
-    - chown
+    creates: "{{ amq_install_dir }}/apache-activemq-{{ amq_version }}"
 
 # when we upgrade activemq we might want to keep the older versions copy for just in case ...
 - name: "Create link activemq to /opt/activemq"
@@ -96,17 +77,39 @@
   tags:
     - link
 
+- name: "make activemq directories owned by {{ amq_user }}"
+  file:
+    path: "{{ item }}"
+    owner: "{{ amq_user }}"
+    group: "{{ amq_group }}"
+    state: directory
+    mode: "u=rwx,g=rx,o=rx"
+    recurse: yes
+  with_items:
+    - "{{ amq_run_dir }}"
+    - "{{ amq_log_dir }}"
+
 - name: Copy custom activemq.xml config file
   template:
-    src: '{{ activemq_custom_xml_config_path }}'
-    dest: '{{ activemq_conf_dir }}/activemq.xml'
+    src: '{{ amq_custom_xml_config_path }}'
+    dest: '{{ amq_conf_dir }}/activemq.xml'
     owner: '{{ amq_user }}'
-    group: "{{ amq_group }}"
+    group: '{{ amq_group }}'
     mode: 0644
   when:
-    - activemq_custom_xml_config == True
+    - amq_custom_xml_config == True
 
-- name: "Create init sctipt link file"
+- name: Copy custom log4j.properties file
+  template:
+    src: '{{ amq_custom_log4j_config_path }}'
+    dest: '{{ amq_conf_dir }}/log4j.properties'
+    owner: '{{ amq_user }}'
+    group: '{{ amq_group }}'
+    mode: 0644
+  when:
+    - amq_custom_log4j_config == True
+
+- name: "Create init script link file"
   file:
     src: "{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq"
     dest: "/etc/init.d/activemq"
@@ -115,7 +118,7 @@
     state: link
   when: amq_systemd is not defined
 
-- name: "Create init sctipt link file"
+- name: "Create init script link file"
   file:
     src: "{{ amq_install_dir }}/activemq/bin/linux-x86-{{ ansible_userspace_bits }}/activemq"
     dest: "/etc/init.d/activemq"
@@ -123,14 +126,6 @@
     group: root
     state: link
   when: amq_systemd is not defined
-
-- name: "Generate empty log file ..."
-  file:
-    path: "{{ amq_log_dir }}"
-    state: touch
-    mode: "u=rw,g=r,o=r"
-    owner: root
-    group: root
 
 - name: "Generate /etc/sysconfig/activemq Redhat"
   template:
